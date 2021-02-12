@@ -1,0 +1,460 @@
+---
+title: "CDI Analysis"
+author: "Elsie Basa"
+date: "1/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+df = read.table("CDI.txt")
+names(df) = c("Identification number", "County", "State","Land area", "Total population","Percent of population aged 18-34", "Percent of population, 65 or older", "Number of active physicians",
+              "Number of hospital beds","Total serious crimes" , "Percent high school graduates", "Percent bachelor's degrees", "Percent below poverty level",
+              "Percent unemployment", "Per capita income", "Total personal income", "Geographic region")
+#### PART 1####
+n = length(df$`Identification number` )
+##active_physicans 
+y= df$`Number of active physicians`
+#total_pop
+x1= df$`Total population`
+#hospital_beds 
+x2 = df$`Number of hospital beds`
+#total_income 
+x3= df$`Total personal income`
+
+geo = df$`Geographic region`
+```
+
+```{r}
+
+#total pop regss
+fit_x1 =lm(y~x1)
+summary(fit_x1)
+coef1 = fit_x1$coefficients
+b0hat_x1 = coef1[1]
+b1hat_x1 = coef1[2]  #yhar = -110.6348 + 0.002795425x
+
+#number of beds regress
+fit_x2 =lm(y~x2)
+summary(fit_x2)
+coef2 = fit_x2$coefficients
+b0hat_x2 = coef2[1]
+b1hat_x2 = coef2[2] #yhat = -95.93218 + 0.7431164x
+
+#total inc regress
+fit_x3 =lm(y~x3)
+summary(fit_x3)
+coef3 = fit_x3$coefficients
+b0hat_x3 = coef3[1]
+b1hat_x3 = coef3[2]  #yhat =   -48.39485 + 0.1317012x
+b0hat_x3
+b1hat_x3
+
+```
+
+```{r}
+plot(x1, y,  main = "Regression Plot of Total Population", xlab= "Total Population" , ylab =  "Number of active physicians")
+abline(lm(y ~ x1))
+
+plot(x2, y ,main = "Regression Plot of Number of Hostial Beds", xlab = "Number of Hostial Beds" , ylab =  "Number of active physicians")
+abline(lm(y ~ x2))
+
+plot(x3, y, main = "Regression Plot of Total Personal Income", xlab = "Total Personal Income" , ylab =  "Number of active physicians")
+abline(lm(y ~ x3))
+
+```
+
+```{r}
+
+MSE.x1 =summary(fit_x1)$sigma^2
+MSE.x1
+
+MSE.x2 =summary(fit_x2)$sigma^2
+MSE.x2
+
+MSE.x3 =summary(fit_x3)$sigma^2
+MSE.x3
+
+
+##1.44##
+##regressing income Y 
+#against percentage of those with Bacherlor Degree (X)
+#seprating total income by region
+Y.r1 =  df[df$`Geographic region` == '1',]
+Y.r2 =  df[df$`Geographic region` == '2',]
+Y.r3 =  df[df$`Geographic region` == '3',]
+Y.r4 =  df[df$`Geographic region` == '4',]
+
+Y.inc1 = Y.r1$`Per capita income`
+Y.inc2 = Y.r2$`Per capita income`
+Y.inc3 = Y.r3$`Per capita income`
+Y.inc4 = Y.r4$`Per capita income`
+  
+#bachelors degree percentage by region
+x.degree1 = Y.r1$`Percent bachelor's degrees`
+x.degree2 = Y.r2$`Percent bachelor's degrees`
+x.degree3 = Y.r3$`Percent bachelor's degrees`
+x.degree4 = Y.r4$`Percent bachelor's degrees`
+
+#region 1 regression
+fit_xd1 =lm(Y.inc1~x.degree1)
+summary(fit_xd1)
+coefd1 = fit_xd1$coefficients
+b0hat_xd1 = coefd1[1]
+b0hat_xd1
+b1hat_xd1 = coefd1[2]
+b1hat_xd1
+#Yhat = 9223.816 + 522.1588x
+
+#region 2 regression
+fit_xd2 =lm(Y.inc2~x.degree2)
+summary(fit_xd2)
+coefd2 = fit_xd2$coefficients
+b0hat_xd2 = coefd2[1]
+b0hat_xd2
+b1hat_xd2 = coefd2[2]
+b1hat_xd2
+#Yhat = 13581.41 + 238.6694x
+
+#region 3 regression
+fit_xd3 =lm(Y.inc3~x.degree3)
+summary(fit_xd3)
+coefd3 = fit_xd3$coefficients
+b0hat_xd3 = coefd3[1]
+b0hat_xd3
+b1hat_xd3 = coefd3[2]
+b1hat_xd3
+#Yhat = 10529.79 + 330.6117x
+
+#region 4 regression
+fit_xd4 =lm(Y.inc4~x.degree4)
+summary(fit_xd4)
+coefd4 = fit_xd4$coefficients
+b0hat_xd4 = coefd4[1]
+b0hat_xd4
+b1hat_xd4 = coefd4[2]
+b1hat_xd4
+#Yhat = 8615.053 + 440.3157x
+
+###1.44 b
+#the regression lines are dfferent 
+#both in slope and intercept for ea region
+
+##1.44c
+#MSE per region
+MSE.r1 =summary(fit_xd1)$sigma^2
+MSE.r1
+
+MSE.r2 =summary(fit_xd2)$sigma^2
+MSE.r2
+
+MSE.r3 =summary(fit_xd3)$sigma^2
+MSE.r3
+
+MSE.r4 =summary(fit_xd4)$sigma^2
+MSE.r4
+
+
+############ PART 2 ###########
+ssto = sum((y-mean(y))^2)
+ssto #1406206299
+ssr.x1 = sum(((b0hat_x1+b1hat_x1*x1)-mean(y))^2)
+ssr.x1
+ssr.x2 = sum(((b0hat_x2+b1hat_x2*x2)-mean(y))^2)
+ssr.x2
+ssr.x3 = sum(((b0hat_x3+b1hat_x3*x3)-mean(y))^2)
+ssr.x3
+
+R2.x1 = (ssr.x1/ssto)
+R2.x2 = (ssr.x2/ssto)
+R2.x3 = (ssr.x3/ssto)
+R2.x1
+R2.x2
+R2.x3
+
+
+####### PART 3 ########
+
+alpha = .10
+# using summary(fit_xd1/2/3/4)
+se.b1hat.r1 = sqrt(MSE.r1/sum((x.degree1-mean(x.degree1))^2))
+  #37.13
+se.b1hat.r2 = sqrt(MSE.r2/sum((x.degree2-mean(x.degree2))^2))
+
+se.b1hat.r3 = sqrt(MSE.r3/sum((x.degree3-mean(x.degree3))^2))
+se.b1hat.r4 = sqrt(MSE.r4/sum((x.degree4-mean(x.degree4))^2))
+
+lb.b1hat.r1 = b1hat_xd1 -qt(1-alpha/2, df = n - 2)*se.b1hat.r1
+ub.b1hat.r1 = b1hat_xd1 +qt(1-alpha/2, df = n - 2)*se.b1hat.r1
+
+
+#confidence interval by region for B1
+#region 1
+CI.r1 = c(lb.b1hat.r1, ub.b1hat.r1)
+CI.r1
+
+#region2
+lb.b1hat.r2 = b1hat_xd2 -qt(1-alpha/2, df = n - 2)*se.b1hat.r2
+ub.b1hat.r2 = b1hat_xd2 +qt(1-alpha/2, df = n - 2)*se.b1hat.r2
+
+CI.r2 = c(lb.b1hat.r2, ub.b1hat.r2)
+CI.r2
+
+#region 3
+lb.b1hat.r3 = b1hat_xd3 -qt(1-alpha/2, df = n - 2)*se.b1hat.r3
+ub.b1hat.r3 = b1hat_xd3 +qt(1-alpha/2, df = n - 2)*se.b1hat.r3
+
+CI.r3 = c(lb.b1hat.r3, ub.b1hat.r3)
+CI.r3
+#region 4
+lb.b1hat.r4 = b1hat_xd4 -qt(1-alpha/2, df = n - 2)*se.b1hat.r4
+ub.b1hat.r4 = b1hat_xd4 +qt(1-alpha/2, df = n - 2)*se.b1hat.r4
+
+CI.r4 = c(lb.b1hat.r4, ub.b1hat.r4)
+CI.r4
+
+##ANOVA
+
+
+anova.fit.r1 =anova(fit_xd1)
+anova.fit.r1
+
+anova.fit.r2 =anova(fit_xd2)
+anova.fit.r2
+
+anova.fit.r3 =anova(fit_xd3)
+anova.fit.r3
+
+anova.fit.r4 =anova(fit_xd4)
+anova.fit.r4
+
+
+
+######### PART 4 #########
+#3.25
+# yhats for ea of the three variables
+yhat.x1 = b0hat_x1+b1hat_x1*x1
+yhat.x2 = b0hat_x2+b1hat_x2*x2
+yhat.x3 = b0hat_x3+b1hat_x3*x3
+yhat.x1
+yhat.x2
+yhat.x3
+
+#resudals
+e1 = y - yhat.x1
+e1
+e2 =  y - yhat.x2
+e2
+e3 = y - yhat.x3
+e3
+
+#residual plot
+
+plot(x1,e1, ylab = "Residuals (e1)", xlab = "Total Population", main = "Residual Plot for Total Population")
+abline(0,0)
+plot(x2,e2, ylab = "Residuals (e2)", xlab = "Number of Hospital beds",main = "Residual Plot for Number of Hospital beds")
+abline(0,0)
+plot(x3,e3, ylab = "Residuals (e3)", xlab = "Total Personal Income",main = "Residual Plot for Total Personal Income")
+abline(0,0)
+
+#normal plots for x1,2,3
+qqnorm(e1,ylim = c(-3000,4200), main = "Normal Probability Plot for Total Population"); qqline(e1)
+
+qqnorm(e2 ,ylim = c(-3000,4200),main = "Normal Probability Plot for Number of Hospital Beds"); qqline(e2)
+
+qqnorm(e3, ylim = c(-3000,4200),main = "Normal Probability Plot for Total Personal Income"); qqline(e3)
+
+```
+
+```{r}
+
+####stem and leaf
+stem(x1)
+stem(x2)
+stem(x3) #new model
+
+stem(x1model1 )
+stem(x2model1)
+stem(x3model1)
+
+
+
+model_2 = c(x1,x2,x3,y)
+mod2 = matrix(model_2, nrow = length(y),byrow = FALSE)
+colnames(mod2) = c('x1','x2','x3','y')
+pairs(~y+x1+x2+x3, data = df , main = "Model 2")
+cor(mod2)
+pairs(mydata1)
+
+pairs(~y+x1model1+x2model1+x3model1, data = df, main = " Model 1 ")
+cor(~x1model1+x2model1+x3model1, data = df)
+mydata1 = df[,c(5,8,9,16)]
+cor(mydata1)
+
+##1c
+fitmodel2 =lm(y~x1+x2+x3)
+fitmodel2
+summary(fitmodel2)
+coef2 = fitmodel2$coefficients
+b0hat_m2 = coef2[1]
+b1hat_m2 = coef2[2]
+b1hat_m2 = coef2[3]
+b1hat_m2 = coef2[4] #yhat = -170.57422 + 0.09616x1 6.33984x2+0.12657x3
+#r2 = 0.9117
+
+##1c
+fitmodel1 =lm(y~x1model1+x2model1+x3model1)
+fitmodel1
+summary(fitmodel1)
+coef1 = fitmodel1$coefficients
+b0hat_m1 = coef1[1]
+b1hat_m1 = coef1[2]
+b1hat_m1 = coef1[3]
+b1hat_m1 = coef1[4] # yhat = -89.104738 + -0.001833x1 + 0.486604x2  + 0.138200x3
+#r2 model 1 =  0.9553
+anova(fitmodel2)
+
+##1e
+plot(fitmodel1$fitted.values,fitmodel1$residuals)
+abline(h=0)
+plot(fitmodel2$fitted.values,fitmodel2$residuals)
+abline(h=0)
+
+#interaction variables
+X12 = as.numeric(x1)*as.numeric(x2)
+X23 = as.numeric(x2)*as.numeric(x3)
+X13 = as.numeric(x1)*as.numeric(x3)
+#model 2
+plot(fitmodel2$fitted.values,fitmodel2$residuals, main = "Fitted vs Residuals")
+abline(h=0)
+plot(x1,fitmodel2$residuals, main = "X1 vs Residuals")
+abline(h=0)
+plot(x2,fitmodel2$residuals, main = "X2 vs Residuals")
+abline(h=0)
+plot(x3,fitmodel2$residuals, main = "X3 vs Residuals")
+abline(h=0)
+plot(X12,fitmodel2$residuals, main = " Interaction between X1 and X2 vs Residuals") #interactions
+abline(h=0)
+plot(X23,fitmodel2$residuals, main = " Interaction between X2 and X3 vs Residuals")
+abline(h=0)
+plot(X13,fitmodel2$residuals, main = " Interaction between X1 and X3 vs Residuals")
+abline(h=0)
+
+
+X12model1 = as.numeric(x1model1)*as.numeric(x2model1)
+X23model1 = as.numeric(x2model1)*as.numeric(x3model1)
+X13model1 = as.numeric(x1model1)*as.numeric(x3model1)
+
+#model 1
+plot(fitmodel1$fitted.values,fitmodel1$residuals, main = "Fitted vs Residuals")
+abline(h=0)
+plot(x1model1,fitmodel1$residuals,  main = "X1 vs Residuals")
+abline(h=0)
+plot(x2model1,fitmodel1$residuals, main = "X2 vs Residuals")
+abline(h=0)
+plot(x3model1,fitmodel1$residuals, main = "X3 vs Residuals")
+abline(h=0)
+plot(X12model1,fitmodel1$residuals, main = " Interaction between X1 and X2 vs Residuals") #interactions
+abline(h=0)
+plot(X23model1,fitmodel1$residuals, main = " Interaction between X2 and X3 vs Residuals")
+abline(h=0)
+plot(X13model1,fitmodel1$residuals, main = " Interaction between X1 and X3 vs Residuals")
+abline(h=0)
+
+
+#ineraction model part 1f
+fitmodel2_int =lm(y~x1+x2+x3+X12 +X23 + X13)
+fitmodel2_int #  -9.367e+00  + -4.179e-01*X1  + -1.106e+01*X2 + 1.477e-01* X3 4.652e-02*X1*X2 + -1.289e-03*X2*X3 + -3.276e-06*X1*X3  
+summary(fitmodel2_int) 
+
+
+fitmodel1_int =lm(y~x1model1+x2model1+x3model1+X12model1 +X23model1+ X13model1)
+fitmodel1_int # yhat =   -8.626e+01 +-2.048e-03*X1 + 5.863e-01*X2 +1.311e-01*X3 + -5.463e-08X2*X1*X2 + -1.130e-06*X2*X3 +  1.266e-08*X1*X3
+summary(fitmodel1_int) 
+
+###### PART 2 ########
+x1_pop = df$`Total population`
+x2_inc = df$ `Total personal income`
+x3_land = df$`Land area`
+x4 = df$`Percent of population, 65 or older`
+x5 = df$`Number of hospital beds`
+
+fitfull = lm(y~x1_pop+x2_inc+x3_land+x4+x5)
+fitx1_x2 = lm(y~x1_pop+x2_inc)
+fitx1_x2_x3 = lm(y~x1_pop+x2_inc+x3_land)
+fitx1_x2_x4 = lm(y~x1_pop+x2_inc+x4)
+fitx1_x2_x5 = lm(y~x1_pop+x2_inc+x5)
+#partial determinations
+anova(fitx1_x2)
+anova(fitx1_x2_x3)
+R2_12_3 = anova(fitx1_x2,fitx1_x2_x3)
+partial_r123 =4063370/140967081 ; partial_r123
+R2_12_4 = anova(fitx1_x2, fitx1_x2_x4)
+partial_r124 = 541647/ 140967081 ; partial_r124
+R2_12_5 = anova(fitx1_x2, fitx1_x2_x5)
+partial_r125 = 78070132/140967081 ; partial_r125
+140967081-136903711
+
+
+
+#part C
+mse.full = (summary(fitx1_x2_x5)$sigma)^2
+df.full =summary(fitx1_x2_x5)$df[2]
+mse.red= (summary(fitx1_x2)$sigma)^2
+df.red =summary(fitx1_x2)$df[2]
+sse.full = mse.full*df.full
+sse.red = mse.red*df.red
+f = (sse.red - sse.full)/(df.red - df.full)/mse.full ; f
+alpha = 0.01
+df1 =df.red - df.full
+df2 = df.full
+fcrit = qf(1-alpha,df1, df2  )
+f > fcrit # Reject H0
+
+#part D
+fitx1_x2_x3_x5 = lm(y~x1_pop+x2_inc+x3_land+x5)
+fitx1_x2_x3_x4 = lm(y~x1_pop+x2_inc+x3_land+x4)
+fitx1_x2_x4_x5 = lm(y~x1_pop+x2_inc+x4+x5)
+aovx12.35 = anova( fitx1_x2,fitx1_x2_x3_x5)
+r.partial12.35 = 78352775/140967081 ; r.partial12.35
+
+mse.fulld1 = (summary(fitx1_x2_x3_x5)$sigma)^2
+df.fulld1 =summary(fitx1_x2_x3_x5)$df[2]
+mse.red= (summary(fitx1_x2)$sigma)^2
+df.red =summary(fitx1_x2)$df[2]
+sse.fulld1 = mse.fulld1*df.fulld1
+sse.red = mse.red*df.red
+fd1 = (sse.red - sse.fulld1)/(df.red - df.fulld1)/mse.fulld1 ; fd1
+df1r35 =df.red - df.fulld1
+df2r35 = df.fulld1
+fcrit35 = qf(1-alpha,df1r35, df2r35 )
+
+aovx12.45 = anova( fitx1_x2, fitx1_x2_x4_x5)
+mse.fulld2 = (summary(fitx1_x2_x4_x5)$sigma)^2
+df.fulld2 =summary( fitx1_x2_x4_x5)$df[2]
+mse.red= (summary(fitx1_x2)$sigma)^2
+df.red =summary(fitx1_x2)$df[2]
+sse.fulld2 = mse.fulld2*df.fulld2
+sse.red = mse.red*df.red
+fd2 = (sse.red - sse.fulld2)/(df.red - df.fulld2)/mse.fulld2 ; fd2
+df1r45 =df.red - df.fulld2
+df2r45 = df.fulld2
+fcrit45 = qf(1-alpha,df1r45, df2r45 )
+r.partial12.45 = 79544288 /140967081;r.partial12.45
+
+aovx12.34 = anova( fitx1_x2, fitx1_x2_x3_x4)
+mse.fulld34 = (summary(fitx1_x2_x3_x4)$sigma)^2
+sse.fulld34 = mse.fulld34*df.fulld34
+df.fulld34 =summary( fitx1_x2_x3_x4)$df[2]
+df1r34 =df.red - df.fulld34
+df2r34 = df.fulld34
+fcrit34 = qf(1-alpha,df1r34, df2r34 )
+fd34 = (sse.red - sse.fulld34)/(df.red - df.fulld34)/mse.fulld34 ; fd34
+r.partial12.34 = 4671904/140967081; r.partial12.34
+```
+
+
